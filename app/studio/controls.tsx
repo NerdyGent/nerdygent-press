@@ -1,0 +1,5 @@
+'use client';
+import {Select,SelectTrigger,SelectValue,SelectContent,SelectItem} from '@/components/ui/select';
+import {Slider} from '@/components/ui/slider';
+export function Choice({value,onChange,label,options}:{value:string;onChange:(v:string)=>void;label:string;options:(string|{value:string;label:string})[]}){return <Select value={value} onValueChange={v=>v!==null&&onChange(String(v))}><SelectTrigger aria-label={label} className="w-full h-11"><SelectValue/></SelectTrigger><SelectContent>{options.map(o=>{const item=typeof o==='string'?{value:o,label:o}:o;return <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>})}</SelectContent></Select>}
+export function Scale({label,value,onChange,min=1,max=5,disabled=false,description}:{label:string;value:number;onChange:(v:number)=>void;min?:number;max?:number;disabled?:boolean;description?:string}){return <div className="preference-scale"><div><span>{label}</span><output>{disabled?'Off':description||`${value} / ${max}`}</output></div><Slider aria-label={label} value={[value]} min={min} max={max} step={1} disabled={disabled} onValueChange={v=>onChange(Array.isArray(v)?v[0]:v)}/></div>}
