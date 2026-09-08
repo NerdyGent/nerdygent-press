@@ -40,4 +40,29 @@ remote personal-paper hosting or secret-bearing feed links are implemented.
 
 The browser importer validates article structure and dates, not factual truth. Readers must inspect the linked sources before printing. Browser pagination depends on paper size and print settings. The built-in sample contains original demonstration editorials, not current news or a private reader's newspaper.
 
-The optional $19 supporter offer is proposed pricing with checkout disabled. Initial Sites publication is owner-private for review. Public release, real reader trials and payment setup remain separate steps.
+The studio is a free public beta. It has no checkout or subscription activation. The paid companion remains planned; wider reader trials and payment setup remain separate work.
+
+
+## Public hosting
+
+The interactive studio is published with Sites at
+https://nerdygent-press.knightedheart.chatgpt.site/.
+The GitHub Pages project guide is at
+https://nerdygent.github.io/nerdygent-press/.
+
+`github-pages/` contains a standalone, script-free guide and quick-start.
+`.github/workflows/pages.yml` publishes only that folder when it changes on
+`main`, or when manually dispatched. It does not upload the engine, reader
+profiles, local editions, dependency directories or model credentials. The
+interactive studio is hosted separately because GitHub Pages is intended for
+project sites, not operating a commercial SaaS service. See
+https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features#pages.
+
+Repository: https://github.com/NerdyGent/nerdygent-press.
+Only the standalone website checkout belongs here. Keep `../engine/`,
+`../experiments/` and private reader data out of this public repository.
+A GitHub push publishes guide changes automatically; app changes still need
+validation and a Sites publication. The two publications are independent.
+
+Visitors should start at `/help`. Bug reports are public and should use
+fictional examples without private papers, profiles or feed credentials.

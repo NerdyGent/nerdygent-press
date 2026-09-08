@@ -1,0 +1,22 @@
+import Link from 'next/link';
+import { DISCORD_INVITE } from '@/lib/brand';
+
+export default function Help() {
+  return <main className="page-shell">
+    <div className="eyebrow edition-rule"><span>THE FIRST EDITION</span><span>PUBLIC BETA</span></div>
+    <div className="content-heading"><h1>A paper you can <em>call yours.</em></h1><p>You need a browser and your own ChatGPT or Claude account with browsing available. Printing is optional.</p></div>
+    <div className="prose">
+      <ol className="steps">
+        <li><h2>Choose your mix.</h2><p>In <Link href="/studio">Your paper</Link>, choose local, national and world coverage. Enter your place and country for the areas you enable. Add interests, narrower niches, temporary topics and preferred public sources. Choose daily or weekly, then save on this device.</p></li>
+        <li><h2>Find the stories.</h2><p>Open Make an edition and copy the research prompt into a fresh chat with your assistant. Enable its browsing tools. Review the candidates and sources before continuing. If browsing is unavailable, wait until it is available rather than asking it to invent a current paper.</p></li>
+        <li><h2>Make the edition.</h2><p>Copy the writing prompt into that same chat. It asks for an edition JSON: a structured text file the Press can read. Download that file from your chat, or copy the complete JSON response.</p></li>
+        <li><h2>Read and print.</h2><p>In <Link href="/read">Read &amp; print</Link>, open the file or paste the JSON. Fix any reported date or structure issues in your chat, and inspect the linked sources. Choose Print / Save PDF. Select Letter or A4, scale 100%, and turn off browser headers and footers. Try <Link href="/sample">the sample</Link> first if you want to check your printer.</p></li>
+        <li><h2>Help the next paper improve.</h2><p>Choose Remember this coverage to help avoid repeats, then Review this paper. More/less votes apply to the topic you select. Dry writing is separate. Learning starts with suggestions you can accept, and every review has an undo.</p></li>
+      </ol>
+      <h2>On your phone</h2><p>Use Take to my phone in the reading room. Transfer the downloaded private file to your phone, open this site’s <Link href="/review">Review page</Link> there, and import it. Export your finished reviews back to the desktop studio and save. Importing a backup replaces that device’s profile and reviews; back up first if both devices have changed.</p>
+      <h2>What is available today?</h2><p>The studio, daily and weekly prompts, print layout and reviews are free. Your AI provider’s usage limits and publisher subscriptions are separate. The planned paid companion is not on sale. Automatic research, scheduled printer delivery and account sync are not available in this beta.</p>
+      <h2>If something goes wrong</h2><details><summary>The assistant returned an article instead of JSON</summary><p>Paste the writing prompt again and ask for its single JSON object. Keep the original verified sources in the same chat. Import the complete response, including its opening and closing braces.</p></details><details><summary>My profile is missing on another device</summary><p>Profiles live in the browser where you saved them. Another device, browser, private window or site address has separate storage. Use Download reader backup in the studio, then import and save it on the other device. Clearing browser data can remove a saved profile.</p></details><details><summary>The Print button is disabled</summary><p>Resolve the listed structural/date issues, check the source material and tick the confirmation. Source QR codes also need to finish generating. The sample can be printed without that confirmation.</p></details>
+      <h2>Help improve the beta</h2><p><a href={DISCORD_INVITE} target="_blank" rel="noreferrer">Visit the NerdyGent Lounge</a> for community feedback or <a href="https://github.com/NerdyGent/nerdygent-press/issues" target="_blank" rel="noreferrer">report a bug on GitHub</a>. Describe what you clicked and what happened. Those spaces are public: leave out your personal newspaper, profile, private feed links and account details.</p><p><Link href="/privacy">How your data is handled →</Link></p>
+    </div>
+  </main>;
+}
