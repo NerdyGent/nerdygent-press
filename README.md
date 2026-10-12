@@ -1,6 +1,6 @@
 # The NerdyGent Press
 
-A static personal newspaper studio and NerdyGent Lounge website. Create a reader profile, export prompts for an existing ChatGPT or Claude chat, import the resulting article JSON, inspect sources, and print or save a PDF from the browser.
+A customizable newspaper studio and NerdyGent Lounge website. The product pitch is a paper without the fluff, shaped by the reader’s preferences and sources they choose. Create a reader profile, export prompts for an existing ChatGPT or Claude chat, import the resulting article JSON, inspect sources, and print or save a PDF from the browser.
 
 ## Development
 
@@ -86,3 +86,7 @@ selection and an interest adjustment into an edition. They are 12-second H.264
 MP4s with poster frames, click-to-play controls and downloads. No autoplay,
 tracking or video service is required. They demonstrate planned collection,
 not live integrations. Reproduction instructions: `scripts/motion/README.md`.
+
+Positioning: lead with reader control over sources, topics, perspectives, emphasis
+and frequency. Keep profiles editable and feedback reversible. The product
+promise is customization and relevance; avoid a lifestyle or trust-only pitch.
