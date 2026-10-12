@@ -71,3 +71,18 @@ validation and a Sites publication. The two publications are independent.
 
 Visitors should start at `/help`. Bug reports are public and should use
 fictional examples without private papers, profiles or feed credentials.
+
+
+## Editorial design and product films
+
+The October 2026 redesign pairs newspaper typography and rules with a software
+presentation. `app/press-design.css` defines the shared design; `components/press/`
+contains the interactive illustrative edition and accessible video players.
+The homepage, plans and Lounge have new layouts; studio controls retain their
+existing behavior.
+
+Two original silent concept films in `public/films/` show local/RSS/Reddit source
+selection and an interest adjustment into an edition. They are 12-second H.264
+MP4s with poster frames, click-to-play controls and downloads. No autoplay,
+tracking or video service is required. They demonstrate planned collection,
+not live integrations. Reproduction instructions: `scripts/motion/README.md`.

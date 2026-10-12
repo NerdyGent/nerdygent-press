@@ -37,3 +37,8 @@ next-env.d.ts
 /outputs/
 /work/
 *.tsbuildinfo
+
+# Local motion rendering intermediates
+scripts/motion/output/
+public/films/*-qa-*.png
+__pycache__/
