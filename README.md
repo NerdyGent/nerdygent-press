@@ -30,8 +30,11 @@ ratings or cadence. Limits are 100 interests, 40 sources and 500 review records.
 
 To review on another device, use Read & print → Take to my phone, transfer the
 download yourself and open it on `/review`. Export reviews back to desktop
-and import/save them in the studio. This replaces the adopted profile and
-review history; back up separately edited devices first. No automatic sync,
+and choose **Merge reviews only** in the studio. Returned review packets carry
+a stable profile ID, not a replacement profile. Full backup restoration is a
+separate explicit action. Stale tabs cannot overwrite newer saved profiles.
+Canonical source links deduplicate topic votes across editions. Undo records
+survive older imports while retained among the latest 500 records. No automatic sync,
 remote personal-paper hosting or secret-bearing feed links are implemented.
 
 ## Configuration and limits
@@ -40,7 +43,9 @@ remote personal-paper hosting or secret-bearing feed links are implemented.
 
 The browser importer validates article structure and dates, not factual truth. Readers must inspect the linked sources before printing. Browser pagination depends on paper size and print settings. The built-in sample contains original demonstration editorials, not current news or a private reader's newspaper.
 
-The studio is a free public beta. It has no checkout or subscription activation. The paid companion remains planned; wider reader trials and payment setup remain separate work.
+The studio is a free public beta. It has no checkout or subscription activation. The $5/month companion is a pilot proposal, not on sale; wider reader trials and payment setup remain separate work.
+
+`/connections` explains current manual use and the proposed ChatGPT plan connection. OpenAI token sharing is distinct from API-key billing. Paid/hosted eligibility and secure local integration remain unresolved; no sign-in, credential entry or token calls are enabled in this website.
 
 
 ## Public hosting

@@ -1,6 +1,6 @@
 import {normalizePreferences,normalizeInterests,preferenceDefaults,interestActive,effectiveInterest,feedbackSummary,editionPeriod,publicSourceUrl,type RatedInterest,type Preferences,type Review} from './preferences.ts';
 export type Interest=RatedInterest;
-export type Profile=Preferences & {paperName:string;place:string;timezone:string;about:string;current:string;avoid:string;interests:Interest[];pages:number};
+export type Profile=Preferences & {profileId?:string;paperName:string;place:string;timezone:string;about:string;current:string;avoid:string;interests:Interest[];pages:number};
 export type Source={name:string;url:string;published:string;extract:string};
 export type Article={id:string;headline:string;body:string[];why:string;sources:Source[];shape:string;section:string;coverage?:'local'|'national'|'world'|'interest';interestIds?:string[]};
 export type Edition={name:string;date:string;articles:Article[];sample?:boolean;frequency?:'daily'|'weekly';periodStart?:string};
@@ -8,7 +8,7 @@ export const emptyProfile:Profile={...preferenceDefaults,paperName:'The NerdyGen
 export const STORAGE='nerdygent-profile-v1';
 function str(v:unknown,max=5000):string{return typeof v==='string'?v.slice(0,max):''}
 export function safeUrl(url:string){try{const p=new URL(url);return p.protocol==='https:'&&!p.username&&!p.password?p.href:null}catch{return null}}
-export function normalizeProfile(value:unknown):Profile{const x=value&&typeof value==='object'?value as Record<string,unknown>:{};return {...normalizePreferences(x),paperName:str(x.paperName,100)||emptyProfile.paperName,place:str(x.place,300),timezone:str(x.timezone,80),about:str(x.about,2500),current:str(x.current,1200),avoid:str(x.avoid,600),pages:[2,4,6,8].includes(Number(x.pages))?Number(x.pages):4,interests:normalizeInterests(x.interests)}}
+export function normalizeProfile(value:unknown):Profile{const x=value&&typeof value==='object'?value as Record<string,unknown>:{};return {...normalizePreferences(x),profileId:str(x.profileId,100)||undefined,paperName:str(x.paperName,100)||emptyProfile.paperName,place:str(x.place,300),timezone:str(x.timezone,80),about:str(x.about,2500),current:str(x.current,1200),avoid:str(x.avoid,600),pages:[2,4,6,8].includes(Number(x.pages))?Number(x.pages):4,interests:normalizeInterests(x.interests)}}
 export function profileDate(timezone:string){try{return new Intl.DateTimeFormat('en-CA',{timeZone:timezone||undefined,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}catch{return new Date().toISOString().slice(0,10)}}
 export function profileData(profile:Profile,reviews:Review[]=[],date=profileDate(profile.timezone)){
  const p=normalizeProfile(profile);const now=new Date(Math.min(Date.now(),Date.parse(`${date}T23:59:59Z`)));const feedback=feedbackSummary(reviews,now,p.voiceSetAt);

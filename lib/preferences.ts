@@ -6,7 +6,7 @@ export type Perspective = 'left' | 'center' | 'right' | 'unrated';
 export type Coverage = Record<'local' | 'national' | 'world', { enabled: boolean; weight: number }>;
 export type ReaderSource = { id: string; name: string; url: string; kind: 'website' | 'rss' | 'reddit' | 'newsletter'; perspective: Perspective; access: 'public' | 'subscriber'; preference: 'prefer' | 'allow' | 'exclude' };
 export type ReviewSignal = 'more' | 'less' | 'too-dry' | 'repeat' | 'source-concern';
-export type Review = { id: string; editionKey: string; articleId: string; headline: string; signal: ReviewSignal; interestId: string; createdAt: string };
+export type Review = { id: string; editionKey: string; articleId: string; headline: string; signal: ReviewSignal; interestId: string; createdAt: string; storyKey?: string; updatedAt?: string; deleted?: boolean };
 export type InterestFields = { id?: string; parentId?: string; enabled?: boolean; expiresOn?: string; ratingSetAt?: string };
 export type RatedInterest = InterestFields & { name: string; rating: number; cadence: string; keywords: string; combines: string };
 export type Preferences = {
@@ -88,30 +88,37 @@ export function interestPath(it: RatedInterest, all: RatedInterest[]): string {
 export function normalizeReviews(value: unknown): Review[] {
   if (!Array.isArray(value)) return [];
   const results: Review[] = [];
-  for (const v of value.slice(-PREFERENCE_LIMITS.reviews)) {
+  for (const v of value) {
     const x = object(v); const signal = choice(x.signal, ['more', 'less', 'too-dry', 'repeat', 'source-concern'], 'repeat');
     if (!['more', 'less', 'too-dry', 'repeat', 'source-concern'].includes(String(x.signal))) continue;
     if (!x.id || !x.editionKey || !x.articleId || !Number.isFinite(Date.parse(String(x.createdAt)))) continue;
-    const row = { id: clean(x.id, 100), editionKey: clean(x.editionKey, 250), articleId: clean(x.articleId, 100), headline: clean(x.headline, 300), signal, interestId: clean(x.interestId, 100), createdAt: clean(x.createdAt, 40) };
+    if (x.updatedAt && !Number.isFinite(Date.parse(String(x.updatedAt)))) continue;
+    const row: Review = { id: clean(x.id, 100), editionKey: clean(x.editionKey, 250), articleId: clean(x.articleId, 100), headline: clean(x.headline, 300), signal, interestId: clean(x.interestId, 100), createdAt: new Date(String(x.createdAt)).toISOString(), ...(x.storyKey ? {storyKey:clean(x.storyKey,2048)} : {}), ...(x.updatedAt ? {updatedAt:new Date(String(x.updatedAt)).toISOString()} : {}), ...(x.deleted === true ? {deleted:true} : {}) };
     if ((signal === 'more' || signal === 'less') && !row.interestId) continue;
     results.push(row);
   }
   // The latest explicit vote for a story/topic wins, including re-imports of the same review.
   const latest = new Map<string, Review>();
-  for (const r of results) { const key = reviewKey(r); const prev = latest.get(key); if (!prev || Date.parse(prev.createdAt) <= Date.parse(r.createdAt)) latest.set(key, r); }
-  return [...latest.values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).slice(-PREFERENCE_LIMITS.reviews);
+  for (const r of results) { const key = reviewKey(r); const prev = latest.get(key); if (!prev || compareReview(prev,r) <= 0) latest.set(key, r); }
+  return [...latest.values()].sort(compareReview).slice(-PREFERENCE_LIMITS.reviews);
 }
-function reviewKey(r: Review) { return JSON.stringify([r.editionKey, r.articleId, ['more', 'less'].includes(r.signal) ? `topic:${r.interestId}` : r.signal]); }
-export function addReview(reviews: Review[], review: Review) { return normalizeReviews([...reviews.filter(r => reviewKey(r) !== reviewKey(review)), review]); }
+export function reviewKey(r: Review) { return JSON.stringify([r.storyKey || JSON.stringify([r.editionKey,r.articleId]), ['more', 'less'].includes(r.signal) ? `topic:${r.interestId}` : r.signal]); }
+function compareReview(a:Review,b:Review) { return Date.parse(a.updatedAt||a.createdAt)-Date.parse(b.updatedAt||b.createdAt) || Number(!!a.deleted)-Number(!!b.deleted) || JSON.stringify(a).localeCompare(JSON.stringify(b)); }
+export function addReview(reviews: Review[], review: Review) { const prev=normalizeReviews(reviews).find(r=>reviewKey(r)===reviewKey(review));const last=prev?Date.parse(prev.updatedAt||prev.createdAt):0;return normalizeReviews([...reviews,Date.parse(review.updatedAt||review.createdAt)<=last?{...review,updatedAt:new Date(last+1).toISOString()}:review]); }
+export function undoReview(reviews:Review[],id:string,now=new Date()) { return normalizeReviews(reviews.map(r=>r.id===id?{...r,deleted:true,updatedAt:new Date(Math.max(now.getTime(),Date.parse(r.updatedAt||r.createdAt)+1)).toISOString()}:r)); }
+export function storyIdentity(urls:string[],fallback:string) {
+  const canonical=urls.map(url=>{try{const u=new URL(url);u.hash='';u.hostname=u.hostname.replace(/^www\./,'');for(const key of [...u.searchParams.keys()])if(/^utm_|^(fbclid|gclid|ref)$/.test(key))u.searchParams.delete(key);u.searchParams.sort();u.pathname=u.pathname.replace(/\/$/,'')||'/';return u.href}catch{return ''}}).filter(Boolean).sort();
+  return canonical[0] || fallback;
+}
 export function effectiveInterest(it: RatedInterest, all: RatedInterest[], reviews: Review[], mode: Preferences['feedbackMode'], now = new Date()) {
-  const recent = normalizeReviews(reviews).filter(r => r.interestId === it.id && ['more', 'less'].includes(r.signal) && Date.parse(r.createdAt) <= now.getTime() && now.getTime() - Date.parse(r.createdAt) < PREFERENCE_LIMITS.feedbackDays * 86400000 && (!it.ratingSetAt || Date.parse(r.createdAt) > Date.parse(it.ratingSetAt)));
+  const recent = normalizeReviews(reviews).filter(r => !r.deleted && r.interestId === it.id && ['more', 'less'].includes(r.signal) && Date.parse(r.createdAt) <= now.getTime() && now.getTime() - Date.parse(r.createdAt) < PREFERENCE_LIMITS.feedbackDays * 86400000 && (!it.ratingSetAt || Date.parse(r.createdAt) > Date.parse(it.ratingSetAt)));
   const net = recent.reduce((n, r) => n + (r.signal === 'more' ? 1 : -1), 0);
   const adjustment = Math.max(-PREFERENCE_LIMITS.maxAdjustment, Math.min(PREFERENCE_LIMITS.maxAdjustment, Math.trunc(net / PREFERENCE_LIMITS.votesPerStep)));
   const suggested = Math.max(1, Math.min(5, it.rating + adjustment));
-  return { base: it.rating, suggested, effective: mode === 'automatic' ? suggested : it.rating, adjustment: suggested - it.rating, votes: recent.length, net, path: interestPath(it, all) };
+  return { base: it.rating, suggested, effective: mode === 'automatic' ? suggested : it.rating, adjustment: suggested - it.rating, votes: recent.length, more:recent.filter(r=>r.signal==='more').length, less:recent.filter(r=>r.signal==='less').length, net, path: interestPath(it, all) };
 }
 export function feedbackSummary(reviews: Review[], now = new Date(), since = '') {
-  const rows = normalizeReviews(reviews).filter(r => Date.parse(r.createdAt) <= now.getTime() && now.getTime() - Date.parse(r.createdAt) < PREFERENCE_LIMITS.feedbackDays * 86400000 && (!since || Date.parse(r.createdAt) > Date.parse(since)));
+  const rows = normalizeReviews(reviews).filter(r => !r.deleted && Date.parse(r.createdAt) <= now.getTime() && now.getTime() - Date.parse(r.createdAt) < PREFERENCE_LIMITS.feedbackDays * 86400000 && (!since || Date.parse(r.createdAt) > Date.parse(since)));
   return { too_dry: rows.filter(r => r.signal === 'too-dry').length, repeats: rows.filter(r => r.signal === 'repeat').length, source_concerns: rows.filter(r => r.signal === 'source-concern').length };
 }
 export function editionPeriod(frequency: 'daily' | 'weekly', date: string) {
