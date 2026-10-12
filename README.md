@@ -1,6 +1,6 @@
 # The NerdyGent Press
 
-A customizable newspaper studio and NerdyGent Lounge website. The product pitch is a paper without the fluff, shaped by the reader’s preferences and sources they choose. Create a reader profile, export prompts for an existing ChatGPT or Claude chat, import the resulting article JSON, inspect sources, and print or save a PDF from the browser.
+A customizable newspaper studio and NerdyGent Lounge website. The product pitch is a paper without the fluff, shaped by the reader’s preferences and sources they choose. Create a reader profile and export a full-engine job to the local desk. Manually exchange its original editorial-stage files with an existing ChatGPT or Claude chat; the engine creates the original checked PDF. This is a local preview, not a public engine installer. Earlier browser-edition files remain readable at `/read`.
 
 ## Development
 
@@ -23,7 +23,9 @@ available. Undo recalculates. Style, repetition and source concerns never
 lower topic weights. Reading and skipping are not training signals.
 
 `lib/preferences.ts` holds the validated version 2 model; `lib/press.ts`
-compiles prompts and audits imported editions. `lib/transfer.ts` validates
+compiles reader data and audits earlier imported editions. `lib/engine.ts` exports
+version 1 full-engine jobs with stable reader identity, raw and compiled preferences,
+explicit reviews and prior coverage. Stale or unsaved profile drafts cannot export. `lib/transfer.ts` validates
 private backup/review files and rolls back failed multi-key storage writes.
 The existing profile storage key migrates old profiles without changing their
 ratings or cadence. Limits are 100 interests, 40 sources and 500 review records.
@@ -39,9 +41,9 @@ remote personal-paper hosting or secret-bearing feed links are implemented.
 
 ## Configuration and limits
 
-`lib/brand.ts` contains the NerdyGent Lounge Discord invite. Reader information is saved only when the reader chooses to save it, in this browser's local storage. Generation uses manually copied prompts; there is no API integration, model billing, database, checkout or scheduler. Readers' chat plans have their own usage limits.
+`lib/brand.ts` contains the NerdyGent Lounge Discord invite. Reader information is saved only when the reader chooses to save it, in this browser's local storage. Generation uses manually exchanged stage files with the separate local engine; there is no API integration, model billing, database, checkout or scheduler. Readers' chat plans have their own usage limits.
 
-The browser importer validates article structure and dates, not factual truth. Readers must inspect the linked sources before printing. Browser pagination depends on paper size and print settings. The built-in sample contains original demonstration editorials, not current news or a private reader's newspaper.
+The full engine gates the original edition contract, page count, reader settings, source/date checks, strict render report and a QA report bound to the draft hash. These checks cannot prove factual truth. The earlier browser importer validates article structure and dates, not factual truth. Readers must inspect the linked sources before printing. Browser pagination depends on paper size and print settings. The built-in sample contains original demonstration editorials, not current news or a private reader's newspaper.
 
 The studio is a free public beta. It has no checkout or subscription activation. The $5/month companion is a pilot proposal, not on sale; wider reader trials and payment setup remain separate work.
 

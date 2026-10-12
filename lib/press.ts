@@ -39,7 +39,7 @@ READER DATA:\n${JSON.stringify(profileData(p,reviews,date),null,2)}`;
 export function parseEdition(text:string):Edition{
  if(text.length>1_000_000)throw Error('Please use an edition file smaller than 1 MB.');
  const d=JSON.parse(text.replace(/^\s*```(?:json)?\s*/,'').replace(/\s*```\s*$/,''));
- if(!d||typeof d!=='object'||!Array.isArray(d.articles)||d.articles.length<1||d.articles.length>60)throw Error('Expected 1–60 articles. Use the studio’s writing prompt to get the right format.');
+ if(!d||typeof d!=='object'||!Array.isArray(d.articles)||d.articles.length<1||d.articles.length>60)throw Error('Expected an earlier browser edition with 1–60 articles. Full-engine editions belong in the local desk.');
  if(typeof d.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||!Number.isFinite(Date.parse(d.date))||new Date(d.date).toISOString().slice(0,10)!==d.date)throw Error('The edition needs a valid YYYY-MM-DD date.');
  if(d.frequency!==undefined&&!['daily','weekly'].includes(d.frequency))throw Error('Edition frequency must be daily or weekly.');
  const frequency=d.frequency==='weekly'?'weekly':'daily';const period=editionPeriod(frequency,d.date);
