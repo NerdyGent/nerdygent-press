@@ -6,8 +6,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import math, subprocess, pathlib, argparse, os
 import imageio_ffmpeg
 OUT=pathlib.Path(__file__).parent / 'output'
+QA_DIR=pathlib.Path(__file__).parent/'output'/'qa'
 W,H,FPS,SECONDS=1280,800,24,12
-BG='#f4f2ec'; INK='#20211f'; MUTED='#7d807a'; LINE='#dedfd8'; ACC='#8d342e'; WHITE='#fffefa'; PALE='#f3e9e4'
+BG='#f5f5f7'; INK='#1d1d1f'; MUTED='#86868b'; LINE='#e0e0e6'; ACC='#0071e3'; WHITE='#ffffff'; PALE='#eaf2ff'
 FONT=os.environ.get('PRESS_FONT_DIR','/System/Library/Fonts/Supplemental/')
 if not FONT.endswith('/'): FONT+='/'
 def font(n,serif=False,bold=False):
@@ -50,7 +51,7 @@ def newspaper(d,x,y,w,h,alpha=1):
    xx=x+pad+k*(col+18);text(d,(xx,y+410),title,17,serif=True);paragraph(d,xx,y+442,col,3,9)
 def source_scene(t):
  im=window();d=ImageDraw.Draw(im)
- text(d,(640,48),'Choose your sources.',43,serif=True,anchor='mt');text(d,(640,103),'Local outlets, RSS feeds and Reddit. You choose the reading list.',16,MUTED,anchor='mt')
+ text(d,(640,48),'Choose your sources.',43,bold=True,anchor='mt');text(d,(640,103),'Local outlets, RSS feeds and Reddit. You choose the reading list.',16,MUTED,anchor='mt')
  d.rectangle((101,193,302,706),fill='#f6f6f0');rule(d,302,193,1)
  label(d,124,217,'YOUR SOURCES')
  items=[('Local desk','City & neighborhood'),('RSS feeds','Writers & publications'),('Reddit','Communities you follow')]
@@ -59,7 +60,7 @@ def source_scene(t):
   if active:d.rounded_rectangle((113,yy-9,290,yy+55),radius=7,fill='#eaece2')
   d.ellipse((128,yy+2,135,yy+9),fill=ACC if active else '#a2a797');text(d,(146,yy-1),a,16,bold=True);text(d,(146,yy+23),b,11,MUTED)
  label(d,125,610,'CHOSEN BY YOU');text(d,(125,632),'No infinite feed.',13,MUTED)
- text(d,(330,218),'The source desk',27,serif=True);text(d,(330,258),'Stories from your selected sources.',14,MUTED)
+ text(d,(330,218),'The source desk',25,bold=True);text(d,(330,258),'Stories from your selected sources.',14,MUTED)
  rows=[('LOCAL DESK','A new life for the old library','A familiar building. A new chapter.','01'),('RSS FEEDS','The small workshop','Good work, in a smaller space.','02'),('REDDIT','The jig that made the difference','r/woodworking · A practical discovery.','03')]
  for i,(kind,title,desc,no) in enumerate(rows):
   p=ease((t-.6-i*1.4)/1.1);yy=int(300+i*109+(1-p)*20)
@@ -81,9 +82,9 @@ def source_scene(t):
  return im
 
 def edition_scene(t):
- im=window();d=ImageDraw.Draw(im);text(d,(640,48),'Set your preferences.',43,serif=True,anchor='mt');text(d,(640,103),'Choose the topics. Set the priorities. Adjust the next edition.',16,MUTED,anchor='mt')
+ im=window();d=ImageDraw.Draw(im);text(d,(640,48),'Set your preferences.',43,bold=True,anchor='mt');text(d,(640,103),'Choose the topics. Set the priorities. Adjust the next edition.',16,MUTED,anchor='mt')
  # stable split canvas with profile morph and newspaper entrance
- label(d,134,224,'YOUR INTERESTS');text(d,(134,251),'Choose what',28,serif=True);text(d,(134,285),'makes the cut.',28,serif=True)
+ label(d,134,224,'YOUR INTERESTS');text(d,(134,251),'Choose what',26,bold=True);text(d,(134,285),'makes the cut.',26,bold=True)
  for i,(title,value) in enumerate([('Local news',.68),('Woodworking',.48),('Space',.37)]):
   yy=351+i*75;text(d,(135,yy),title,15,bold=True);d.rounded_rectangle((135,yy+31,424,yy+34),radius=2,fill=LINE)
   v=value+(.15*ease((t-2)/1.3) if i==1 else 0); xx=135+289*v;d.rounded_rectangle((135,yy+31,xx,yy+34),radius=2,fill=ACC);d.ellipse((xx-6,yy+26,xx+6,yy+38),fill=WHITE,outline=ACC,width=2)
@@ -103,11 +104,12 @@ def edition_scene(t):
  return im
 
 def encode(name,scene):
+ QA_DIR.mkdir(parents=True,exist_ok=True)
  cmd=[imageio_ffmpeg.get_ffmpeg_exe(),'-y','-f','rawvideo','-vcodec','rawvideo','-pix_fmt','rgb24','-s',f'{W}x{H}','-r',str(FPS),'-i','-','-an','-c:v','libx264','-preset','slow','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',str(OUT/(name+'.mp4'))]
  p=subprocess.Popen(cmd,stdin=subprocess.PIPE,stderr=subprocess.DEVNULL)
  for i in range(FPS*SECONDS):
   frame=scene(i/FPS);p.stdin.write(frame.tobytes())
-  if i in [24,120,240]:frame.save(OUT/f'{name}-qa-{i//24}.png')
+  if i in [24,120,240]:frame.save(QA_DIR/f'{name}-{i//24}.png')
   if i==240:frame.save(OUT/(name+'-poster.png'))
  p.stdin.close();assert p.wait()==0
  print(name, (OUT/(name+'.mp4')).stat().st_size,flush=True)

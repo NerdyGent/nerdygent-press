@@ -75,9 +75,12 @@ fictional examples without private papers, profiles or feed credentials.
 
 ## Editorial design and product films
 
-The October 2026 redesign pairs newspaper typography and rules with a software
-presentation. `app/press-design.css` defines the shared design; `components/press/`
-contains the interactive illustrative edition and accessible video players.
+The October 2026 design uses a spacious software presentation, with newspaper
+typography inside the edition. `app/press-design.css` provides layout and
+`app/software-design.css` supplies the shared software theme. `components/press/`
+contains the illustrative edition, adjustable preview controls and a tabbed
+walkthrough gallery with accessible video players. Preview changes are temporary
+and never write to a reader profile.
 The homepage, plans and Lounge have new layouts; studio controls retain their
 existing behavior.
 
